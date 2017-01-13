@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ednerdaza.rappi.rappitestapplication.mvc.controllers.activities.DetailActivity">
+
+    <TextView
+        android:id="@+id/textview_details"
+        android:layout_alignParentTop="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:padding="@dimen/deafult_padding_10"
+        android:text="@string/title"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:id="@+id/scrollview_details"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/textview_details"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/linearlayout_scrollview_details"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/iv_image_url_detail"
+                android:src="@drawable/banner"
+                android:background="@null"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:contentDescription="@string/imagen_url_descripcion" />
+
+            <ImageView
+                android:id="@+id/iv_header_url_detail"
+                android:src="@drawable/banner"
+                android:background="@null"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:contentDescription="@string/imagen_url_descripcion" />
+
+            <LinearLayout
+                android:id="@+id/lly_info_detail"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_title_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:text="@string/title"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="5dp"
+                    android:layout_marginBottom="@dimen/deafult_padding_10"/>
+
+                <TextView
+                    android:id="@+id/tv_summary_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:padding="5dp"
+                    android:text="@string/summary"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Rappi Reddit</string>
+    <string name="wait_loading">Cargando. Por favor espere&#8230;</string>
+    <string name="error_listener">Hubo un error inesperado, por favor intente de nuevo</string>
+    <string name="error_conexion">No es posible conectar con %1$s. \n Asegúrate de tener conexión a
+        internet \n o inténtalo de nuevo más tarde.</string>
+    <string name="title_activity_home">Home Activity</string>
+    <string name="title">Title</string>
+    <string name="summary">Descripción</string>
+    <string name="imagen_url_descripcion">imagen-url-descripcion</string>
+    <string name="error_response_null">ERROR RESPONSE NULL</string>
+    <string name="modhash">Modhash</string>
+    <string name="action_refresh">Refrescar</string>
+    <string name="button_before">Before</string>
+    <string name="button_after">After</string>
+    <string name="action_online_mode">Online</string>
+    <string name="action_offline_mode">Offline</string>
+    <string name="no_data">No existen datos para mostrar</string>
+</resources>
