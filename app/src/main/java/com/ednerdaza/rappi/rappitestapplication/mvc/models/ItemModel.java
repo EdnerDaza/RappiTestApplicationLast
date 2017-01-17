@@ -5,22 +5,16 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.ednerdaza.rappi.rappitestapplication.R;
-import com.ednerdaza.rappi.rappitestapplication.classes.helpers.Helpers;
-import com.ednerdaza.rappi.rappitestapplication.classes.helpers.JsonArrayListRequest;
 import com.ednerdaza.rappi.rappitestapplication.classes.utilities.Config;
 import com.ednerdaza.rappi.rappitestapplication.mvc.controllers.base.VolleyQueue;
 import com.ednerdaza.rappi.rappitestapplication.mvc.controllers.interfaces.ItemModelInterface;
-import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntity;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntityResponse;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,14 +22,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 /**
- * Created by administrador on 8/01/17.
+ * Created by administrador on 15/01/17.
  */
 public class ItemModel {
 

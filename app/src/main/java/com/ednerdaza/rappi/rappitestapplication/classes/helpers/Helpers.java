@@ -32,7 +32,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 /**
- * Created by administrador on 10/01/17.
+ * Created by administrador on 15/01/17.
  */
 
 public class Helpers {
@@ -88,21 +88,26 @@ public class Helpers {
     private static Intent intent;
 
     public static boolean isNetworkAvailable(Context context){
-        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Log.v(Config.LOG_TAG, "// isNetworkAvailable(context : "+context+") //\n"+"HELPERS.CLASS");
+        ConnectivityManager connectivityManager = (ConnectivityManager)context.
+                getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         boolean isConnected = activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-
+        Log.v(Config.LOG_TAG, "--  isConnected :"+isConnected+" \n"+"HELPERS.CLASS");
         if (isConnected) {
             boolean isWiFi = activeNetworkInfo.getType() == connectivityManager.TYPE_WIFI;
             boolean isMobile = activeNetworkInfo.getType() == connectivityManager.TYPE_MOBILE;
             if (isWiFi) {
-                Toast.makeText(context, "Connected via WiFi", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Connected via WiFi", Toast.LENGTH_SHORT).show();
+                Log.v(Config.LOG_TAG, "-- CONECTADO VIA WIFI \n"+"HELPERS.CLASS");
             } else if (isMobile) {
-                Toast.makeText(context, "Connected via Mobile", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, "Connected via Mobile", Toast.LENGTH_SHORT).show();
+                Log.v(Config.LOG_TAG, "-- CONECTADO VIA MOBILE \n"+"HELPERS.CLASS");
             }
         } else {
-            Toast.makeText(context, "No Connection", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "No Connection", Toast.LENGTH_SHORT).show();
+            Log.v(Config.LOG_TAG, "-- NO CONECTADO \n"+"HELPERS.CLASS");
         }
 
         return isConnected;
@@ -113,7 +118,7 @@ public class Helpers {
         //builder.setTitle(resources.getString(R.string.store));
         builder.setMessage(message);
         builder.setCancelable(false);
-        builder.setPositiveButton("Aceptar",
+        builder.setPositiveButton(getContexto().getResources().getString(R.string.accept_button),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -121,7 +126,7 @@ public class Helpers {
                     }
                 });
 
-        builder.setNeutralButton("Ir a Configuracion de Red",
+        builder.setNeutralButton(getContexto().getResources().getString(R.string.network_button),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
@@ -142,7 +147,7 @@ public class Helpers {
 
         builder.setMessage(message);
         builder.setCancelable(false);
-        builder.setPositiveButton("Aceptar",
+        builder.setPositiveButton(getContexto().getResources().getString(R.string.accept_button),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -205,17 +210,16 @@ public class Helpers {
      * @param context
      */
     public static Boolean testConectionInternet(Context context) {
+        Log.v(Config.LOG_TAG, "// testConectionInternet(context : "+context+") //\n"+"HELPERS.CLASS");
         if(Helpers.isNetworkAvailable(context)){
-            //Toast.makeText(getApplicationContext(), "con conexion", Toast.LENGTH_SHORT).show();
-            Log.v(Config.LOG_TAG, "<< CON CONEXION >> "+Helpers.isNetworkAvailable(context));
-            //syncItems();
+            Log.v(Config.LOG_TAG, "--  TIENES CONEXION \n"+"HELPERS.CLASS");
             return true;
         }else{
-            //Toast.makeText(getApplicationContext(), "SIN CONEXION", Toast.LENGTH_SHORT).show();
-            Log.v(Config.LOG_TAG, "<< SIN CONEXION >> "+Helpers.isNetworkAvailable(context));
+            Log.v(Config.LOG_TAG, "--  NO TIENES CONEXION \n"+"HELPERS.CLASS");
             //MUESTRA UN DIALOG
-            Helpers.customDialogConnection(String.format(context.getResources().getString(R.string.error_conexion),
-                    context.getResources().getString(R.string.app_name))).show();
+            Helpers.customDialogConnection(String.format(context.getResources().
+                    getString(R.string.error_conexion), context.getResources().
+                    getString(R.string.app_name))).show();
             return false;
         }
     }
@@ -299,20 +303,23 @@ public class Helpers {
                 getDownloadManager());
     }
 
-    public static boolean haveStoragePermission() {
+    public static boolean haveStoragePermission()
+    {
+        Log.v(Config.LOG_TAG, "// haveStoragePermission() //\n"+"HELPERS.CLASS");
         if (Build.VERSION.SDK_INT >= 23) {
             if (getContexto().checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.v(Config.LOG_TAG, "You have permission");
+                Log.v(Config.LOG_TAG, "--  TIENES PERMISO \n"+"HELPERS.CLASS");
                 return true;
             } else {
-                Log.v(Config.LOG_TAG, "You have asked for permission");
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                Log.v(Config.LOG_TAG, "--  PREGUNTAS POR PERMISO \n"+"HELPERS.CLASS\n...");
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         }
         else { //you dont need to worry about these stuff below api level 23
-            Log.v(Config.LOG_TAG, "You already have the permission");
+            Log.v(Config.LOG_TAG, "--  YA TENIAS PERMISO DESDE EL MANIFEST\n"+"HELPERS.CLASS\n...");
             return true;
         }
     }
@@ -334,7 +341,8 @@ public class Helpers {
 
         }else{
             // set the path to where to save the file save in app package directory
-            request.setDestinationInExternalFilesDir(getActivity(), Environment.DIRECTORY_DOWNLOADS, name);
+            request.setDestinationInExternalFilesDir(getActivity(), Environment.DIRECTORY_DOWNLOADS,
+                    name);
         }
 
         //  make file visible by and manageable by system's download app

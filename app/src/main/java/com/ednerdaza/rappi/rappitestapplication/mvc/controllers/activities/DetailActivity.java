@@ -1,6 +1,5 @@
 package com.ednerdaza.rappi.rappitestapplication.mvc.controllers.activities;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -17,21 +16,28 @@ import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Children;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Data;
 import com.squareup.picasso.Picasso;
 
+
+/**
+ * Created by administrador on 15/01/17.
+ */
 public class DetailActivity extends AppCompatActivity {
 
     private Children mChildren;
-    public static String WORK_ID = "WORK_ID";
 
     ImageView mImageViewItemDetail, mHeaderViewItemDetail;
     TextView mTextViewTitle, mTextViewItemTitle, mTextViewItemSummary;
 
     Context mContext;
-    ProgressDialog mProgressDialog;
+
+    //region LIFECYCLE METHODS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(Config.LOG_TAG, "/ ON CREATE / "+mChildren);
+        mContext = this;
+        Helpers.setContexto(mContext);
+        Helpers.setActivity(this);
         setContentView(R.layout.activity_detail);
         Intent intent = this.getIntent();
         mChildren= (Children)intent.getSerializableExtra("children");
@@ -40,7 +46,6 @@ public class DetailActivity extends AppCompatActivity {
         Data data = mChildren.getData();
 
         setTitle(data.getTitle());
-        mContext = this;
 
         mTextViewTitle = (TextView) findViewById(R.id.textview_details);
         mImageViewItemDetail = (ImageView)findViewById(R.id.iv_image_url_detail);
@@ -81,51 +86,8 @@ public class DetailActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.v(Config.LOG_TAG, "/ ON RESUME / "+this);
-        Helpers.setActivity(this);
     }
 
-    // METODOS PRIVADOS
-
-    /**
-     * METODO QUE REVISA SI HAY CONEXION A INTERNET Y SI NO DEVUELVE UN DIALOG
-     */
-    private void testConectionInternet() {
-        if(Helpers.isNetworkAvailable(this)){
-            //Toast.makeText(getApplicationContext(), "con conexion", Toast.LENGTH_SHORT).show();
-            Log.v(Config.LOG_TAG, "<< CON CONEXION >> "+Helpers.isNetworkAvailable(this));
-        }else{
-            //Toast.makeText(getApplicationContext(), "SIN CONEXION", Toast.LENGTH_SHORT).show();
-            Log.v(Config.LOG_TAG, "<< SIN CONEXION >> "+Helpers.isNetworkAvailable(this));
-            //MUESTRA UN DIALOG
-            Helpers.customDialogConnection(String.format(getResources().getString(R.string.error_conexion),
-                    getResources().getString(R.string.app_name))).show();
-
-        }
-    }
-
-
-    /**
-     * METODO QUE MUESTRA UN LOADING
-     */
-    private void progressDialogLoadingShow(){
-        // SI EL LOADING ES DIFERENTE DE NULO, LO CERRAMOS
-        if (mProgressDialog != null){
-            progressDialogClose();
-        }
-        // Y CREAMOS UNO NUEVO
-        mProgressDialog = Helpers.customProgressDialog()
-                .show(DetailActivity.this, "", getResources().getString(R.string.wait_loading), true, false);
-    }
-
-    /**
-     * METODO QUE OCULTA UN LOADING
-     */
-    private void progressDialogClose() {
-        // SI EL LOADING ES DIFERENTE DE NULO Y SE ESTA MOSTRANDO LO CERRAMOS
-        if ((mProgressDialog != null) && mProgressDialog.isShowing())
-            mProgressDialog.dismiss();
-        // LO CONVERTIMOS EN NULO
-        mProgressDialog = null;
-    }
+    //endregion
 
 }

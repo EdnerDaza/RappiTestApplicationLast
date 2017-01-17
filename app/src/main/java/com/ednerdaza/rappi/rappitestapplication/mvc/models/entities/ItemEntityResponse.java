@@ -1,19 +1,13 @@
 package com.ednerdaza.rappi.rappitestapplication.mvc.models.entities;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
- * Created by EDNER on 11/01/2017.
+ * Created by administrador on 15/01/17.
  */
-
 public class ItemEntityResponse implements Serializable{
 
-    //@SerializedName("kind")
     public String kind;
-    //@SerializedName("data")
     public Response_data data;
 
     public String getKind() {

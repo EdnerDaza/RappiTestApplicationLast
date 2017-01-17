@@ -16,15 +16,12 @@ import com.ednerdaza.rappi.rappitestapplication.classes.utilities.Config;
 import com.ednerdaza.rappi.rappitestapplication.mvc.controllers.interfaces.DelegateItemAdapter;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Children;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Data;
-import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntity;
-import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntityResponse;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
- * Created by administrador on 9/06/16.
+ * Created by administrador on 15/01/17.
  */
 public class AdapterItems extends RecyclerView.Adapter<AdapterItems.ItemsViewHolder> {
 
@@ -80,8 +77,8 @@ public class AdapterItems extends RecyclerView.Adapter<AdapterItems.ItemsViewHol
             @Override
             public void onClick(View view) {
 
-                Log.v(Config.LOG_TAG, "HICE CLICK EN --> " + position);
-               /* String title = items.get(position).getTitle();*/
+                Log.v(Config.LOG_TAG, "// setOnClickListener onClick( view : "+view+" ) //"+
+                        "\nMETODO QUE OBTIENE EL EVENTO CLICK DE LA VISTA\n"+this);
 
                 if(mDelegateItemAdapter!=null){
                     mDelegateItemAdapter.onItemClicked(items.get(position));

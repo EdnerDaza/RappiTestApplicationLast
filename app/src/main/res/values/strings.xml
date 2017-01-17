@@ -2,7 +2,7 @@
     <string name="app_name">Rappi Reddit</string>
     <string name="wait_loading">Cargando. Por favor espere&#8230;</string>
     <string name="error_listener">Hubo un error inesperado, por favor intente de nuevo</string>
-    <string name="error_conexion">No es posible conectar con %1$s. \n Asegúrate de tener conexión a
+    <string name="error_conexion">No es posible conectar con %1$s. Asegúrate de tener conexión a
         internet o inténtalo de nuevo más tarde.</string>
     <string name="title_activity_home">Home Activity</string>
     <string name="title">Title</string>
@@ -27,4 +27,11 @@
     <string name="download_descripcion">JSON Reddit</string>
     <string name="download_title">Descargando JSON</string>
     <string name="download_name">JSON Reddit</string>
+    <string name="accept_button">Aceptar</string>
+    <string name="network_button">Ir a Configuracion de Red</string>
+    <string name="success_download">SUCCESS DOWNLOAD</string>
+    <string name="failed_download">FAILED DOWNLOAD</string>
+    <string name="paused_download">PAUSED DOWNLOAD</string>
+    <string name="pending_download">PENDING! DOWNLOAD</string>
+    <string name="running_download">RUNNING! DOWNLOAD</string>
 </resources>

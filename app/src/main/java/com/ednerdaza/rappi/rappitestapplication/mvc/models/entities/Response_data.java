@@ -1,19 +1,15 @@
 package com.ednerdaza.rappi.rappitestapplication.mvc.models.entities;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Created by administrador on 15/01/17.
+ */
 public class Response_data implements Serializable{
-    //@SerializedName("modhash")
     public String modhash;
-    //@SerializedName("children")
     public ArrayList<Children> children;
-    //@SerializedName("after")
     public String after;
-    //@SerializedName("before")
     public String before;
 
     public String getModhash() {

@@ -1,13 +1,12 @@
 package com.ednerdaza.rappi.rappitestapplication.mvc.models.entities;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.io.Serializable;
 
+/**
+ * Created by administrador on 15/01/17.
+ */
 public class Children implements Serializable {
-    //@SerializedName("kind")
     public String kind;
-    //@SerializedName("data")
     public Data data;
 
     public String getKind() {
