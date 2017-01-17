@@ -3,7 +3,7 @@
     <string name="wait_loading">Cargando. Por favor espere&#8230;</string>
     <string name="error_listener">Hubo un error inesperado, por favor intente de nuevo</string>
     <string name="error_conexion">No es posible conectar con %1$s. \n Asegúrate de tener conexión a
-        internet \n o inténtalo de nuevo más tarde.</string>
+        internet o inténtalo de nuevo más tarde.</string>
     <string name="title_activity_home">Home Activity</string>
     <string name="title">Title</string>
     <string name="summary">Descripción</string>
@@ -16,4 +16,15 @@
     <string name="action_online_mode">Online</string>
     <string name="action_offline_mode">Offline</string>
     <string name="no_data">No existen datos para mostrar</string>
+    <string name="online_dialog">La aplicacion se encuentra Online.</string>
+    <string name="offline_dialog">La aplicacion se encuentra Offline, Presione la opcion Online y
+        vuelva a intentarlo</string>
+    <string name="download_dialog">Desea ud descargar una version actualizada de los datos o usar la
+        version guardada por defecto.</string>
+    <string name="download_button">Descargar</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="download_description">JSON Reddit</string>
+    <string name="download_descripcion">JSON Reddit</string>
+    <string name="download_title">Descargando JSON</string>
+    <string name="download_name">JSON Reddit</string>
 </resources>

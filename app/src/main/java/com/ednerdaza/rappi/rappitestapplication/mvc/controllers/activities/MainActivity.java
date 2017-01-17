@@ -10,7 +10,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,14 +32,11 @@ import com.ednerdaza.rappi.rappitestapplication.mvc.controllers.interfaces.Deleg
 import com.ednerdaza.rappi.rappitestapplication.mvc.controllers.interfaces.ItemModelInterface;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.ItemModel;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Children;
-import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntity;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.ItemEntityResponse;
 import com.ednerdaza.rappi.rappitestapplication.mvc.models.entities.Response_data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import static android.R.id.toggle;
 
 /**
  * Created by administrador on 8/01/17.
@@ -72,20 +68,27 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
     private BroadcastReceiver receiverNotificationClicked;
 
     private String TAG = "download";
+    private String mSavedFilePathJSON = "";
+    private String mSavedFilePathJSONURI = "";
+
+    //region LIFECYCLE METHODS
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v(Config.LOG_TAG, "/ ON CREATE / "+this);
-        setContentView(R.layout.activity_main);
 
+        mContext = this;
+        Helpers.setContexto(mContext);
+        Helpers.setActivity(this);
+        Helpers.haveStoragePermission();
         //Se crea la cola de peticiones
         VolleyQueue.createQueue(getApplicationContext());
 
+        setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mContext = this;
 
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinatorLayout);
 
@@ -107,105 +110,90 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
         mRecyclerView.setAdapter(mAdapterItems);
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        Helpers.setDownloadManager(mDownloadManager);
 
     }
-
-/*    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }*/
-
 
     @Override
     protected void onResume() {
         super.onResume();
-
         Log.v(Config.LOG_TAG, "/ ON RESUME / "+this);
-        Helpers.setActivity(this);
         if(Helpers.testConectionInternet(mContext))
         {
-            Log.v(Config.LOG_TAG, "/ syncItems / "+this);
-            syncItems();
-        };
-//        filter for notifications - only acts on notification
-//              while download busy
-        IntentFilter filter = new IntentFilter(DownloadManager
-                .ACTION_NOTIFICATION_CLICKED);
+            if(mIsAppOnline) {
+                Log.v(Config.LOG_TAG, "/ syncItems / " + this);
+                syncItems();
+            }else{
+            // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+            Helpers.customDialogMessage(getResources().getString(R.string.offline_dialog)).show();
+            }
+        }else{
+            syncItems(mIsAppOnline);
+        }
+
+        // filter for notifications - only acts on notification while download busy
+        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_NOTIFICATION_CLICKED);
 
         receiverNotificationClicked = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String extraId = DownloadManager
-                        .EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS;
+                String extraId = DownloadManager.EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS;
                 long[] references = intent.getLongArrayExtra(extraId);
                 for (long reference : references) {
-                    if (reference == myDownloadReference) {
-//                        do something with the download file
+                    if (reference == Helpers.getMyDownloadReference()) {
+                        // do something with the download file
                     }
                 }
             }
         };
         registerReceiver(receiverNotificationClicked, filter);
 
-//        filter for download - on completion
-        IntentFilter intentFilter = new IntentFilter(DownloadManager
-                .ACTION_DOWNLOAD_COMPLETE);
+        // filter for download - on completion
+        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
         receiverDownloadComplete = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                long reference = intent.getLongExtra(DownloadManager
-                        .EXTRA_DOWNLOAD_ID, -1);
-                if (myDownloadReference == reference) {
-//                    do something with the download file
+                long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (Helpers.getMyDownloadReference() == reference) {
+                    // do something with the download file
                     DownloadManager.Query query = new DownloadManager.Query();
                     query.setFilterById(reference);
-                    Cursor cursor = mDownloadManager.query(query);
-
+                    Cursor cursor = Helpers.getDownloadManager().query(query);
                     cursor.moveToFirst();
-//                        get the status of the download
-                    int columnIndex = cursor.getColumnIndex(DownloadManager
-                            .COLUMN_STATUS);
+                    // get the status of the download
+                    int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
                     int status = cursor.getInt(columnIndex);
 
-                    int fileNameIndex = cursor.getColumnIndex(DownloadManager
-                            .COLUMN_LOCAL_FILENAME);
+                    int fileNameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
                     String savedFilePath = cursor.getString(fileNameIndex);
+                    mSavedFilePathJSON = savedFilePath;
 
-//                        get the reason - more detail on the status
-                    int columnReason = cursor.getColumnIndex(DownloadManager
-                            .COLUMN_REASON);
+                    // get the reason - more detail on the status
+                    int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
                     int reason = cursor.getInt(columnReason);
 
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
-
-//                                start activity to display the downloaded image
-                            Toast.makeText(MainActivity.this,
-                                    "SUCCES DOWNLOAD: " + reason,
-                                    Toast.LENGTH_LONG).show();
-
+                            String uriString = cursor.getString(
+                                    cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                            mSavedFilePathJSONURI = uriString;
+                            // start activity to display the downloaded image
+                            Toast.makeText(MainActivity.this, "SUCCESS DOWNLOAD: " + reason + " "
+                                    +mSavedFilePathJSONURI , Toast.LENGTH_LONG).show();
+                            syncItems(mSavedFilePathJSON);
                             break;
                         case DownloadManager.STATUS_FAILED:
-                            Toast.makeText(MainActivity.this,
-                                    "FAILED: " + reason,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "FAILED: " + reason, Toast.LENGTH_LONG).show();
                             break;
                         case DownloadManager.STATUS_PAUSED:
-                            Toast.makeText(MainActivity.this,
-                                    "PAUSED: " + reason,
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "PAUSED: " + reason, Toast.LENGTH_LONG).show();
                             break;
                         case DownloadManager.STATUS_PENDING:
-                            Toast.makeText(MainActivity.this,
-                                    "PENDING!",
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "PENDING!", Toast.LENGTH_LONG).show();
                             break;
                         case DownloadManager.STATUS_RUNNING:
-                            Toast.makeText(MainActivity.this,
-                                    "RUNNING!",
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "RUNNING!", Toast.LENGTH_LONG).show();
                             break;
                     }
                     cursor.close();
@@ -218,21 +206,27 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
     @Override
     protected void onPause() {
         super.onPause();
+        Log.v(Config.LOG_TAG, "/ ON PAUSE / "+this);
         unregisterReceiver(receiverDownloadComplete);
         unregisterReceiver(receiverNotificationClicked);
     }
 
+    //endregion
+
+    //region MENU METHODS
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        mIsAppOnline = true;
+        Log.v(Config.LOG_TAG, "/ ON onCreateOptionsMenu / "+this);
+        //mIsAppOnline = true;
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(Config.LOG_TAG, "/ ON onOptionsItemSelected / "+this);
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button_ilike, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -241,18 +235,24 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
         if (id == R.id.action_refresh) {
             if(Helpers.testConectionInternet(mContext))
             {
-                Log.v(Config.LOG_TAG, "/ syncItems / "+this);
-                syncItems();
+                if(mIsAppOnline) {
+                    Log.v(Config.LOG_TAG, "/ syncItems / " + this);
+                    syncItems();
+                }else{
+                    // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+                    Helpers.customDialogMessage(getResources().getString(R.string.offline_dialog)).show();
+                }
             };
             return true;
         }
 
         if (id == R.id.action_online_mode) {
-
             if(mIsAppOnline){
+                Toast.makeText(MainActivity.this, "MODO ONLINE DESACTIVADO", Toast.LENGTH_LONG).show();
                 item.setIcon(R.drawable.ic_cloud_off_red_700_48dp);
                 mIsAppOnline = false;
-                useDownloadJSON();
+                Helpers.customDialogDownload(getResources().getString(R.string.download_dialog)).show();
+                useAssetsJSON();
             }else{
                 item.setIcon(R.drawable.ic_cloud_queue_green_a700_48dp);
                 mIsAppOnline = true;
@@ -265,19 +265,35 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
 
     }
 
+    private void useAssetsJSON() {
+        if(!mIsAppOnline) {
+            Log.v(Config.LOG_TAG, "/ syncItems / " + this);
+            syncItems(mIsAppOnline);
+        }else{
+            // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+            Helpers.customDialogMessage(getResources().getString(R.string.offline_dialog)).show();
+        }
+    }
+
+
+
+    //endregion
+
+    //region PRIVATE METHODS
+
     private void useDownloadJSON() {
         Log.v(Config.LOG_TAG, "useDownloadJSON --> ");
-        Uri uri = Uri.parse(Config.BASE_URL);
+        Uri uri = Uri.parse(Config.BASE_URL_JSON);
         DownloadManager.Request request = new DownloadManager.Request(uri);
 
 //                set the notification
-        request.setDescription("My Download")
-                .setTitle("Notification Title");
+        request.setDescription("JSON Reddit")
+                .setTitle("Descargando JSON");
 
 //                set the path to where to save the file
 //                      save in app package directory
         request.setDestinationInExternalFilesDir(MainActivity.this,
-                Environment.DIRECTORY_DOWNLOADS, "logo.jpg");
+                Environment.DIRECTORY_DOWNLOADS, "reddits.json");
 //                      save in the public downloads folder
 //                request.setDestinationInExternalPublicDir(Environment.
 //                              DIRECTORY_DOWNLOADS, "MyWebsiteLogo.png");
@@ -296,15 +312,22 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
 
     private void useOnlineJSON() {
         Log.v(Config.LOG_TAG, "useOnlineJSON --> ");
+        mSavedFilePathJSON = "";
+        mSavedFilePathJSONURI ="";
+        Toast.makeText(MainActivity.this, "MODO ONLINE ACTIVADO", Toast.LENGTH_LONG).show();
+        if(Helpers.testConectionInternet(mContext))
+        {
+            if(mIsAppOnline) {
+                Log.v(Config.LOG_TAG, "/ syncItems / " + this);
+                syncItems();
+            }else{
+                // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+                Helpers.customDialogMessage(getResources().getString(R.string.offline_dialog)).show();
+            }
+        };
     }
 
-    @Override
-    public void onItemClicked(Children entity) {
-        Log.v(Config.LOG_TAG, "HICE CLICK EN --> " + entity);
-        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-        intent.putExtra("children", (Serializable) entity);
-        startActivity(intent);
-    }
+
 
     /**
      * METODO QUE DIBUJA VALORES PARA EL RECYCLEVIEW CUANDO ESTE LEE DEL SERVICIO
@@ -362,13 +385,84 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
 
     }
 
+    private void syncItems(String mSavedFilePathJSONURI) {
+
+        // MUESTRO UN CARGANDO
+        progressDialogLoadingShow();
+
+        mItemModel.getItemsDownload(mContext, mSavedFilePathJSONURI,
+                new ItemModelInterface<ItemEntityResponse>() {
+            @Override
+            public void completeSuccess(ItemEntityResponse entity) {
+                Log.v(Config.LOG_TAG, "EXITO SINCRONIZACION >>> " + entity);
+                if(!entity.getKind().equals("")){
+                    mTextviewTitleRoot.setText(entity.getKind().trim());
+                }else{
+                    mTextviewTitleRoot.setText(getResources().getString(R.string.title));
+                }
+
+                if(entity.getData() != null){
+                    mResponseData = entity.getData();
+                    responseDataItemsView();
+                }
+
+                // CIERRO EL CARGANDO
+                progressDialogClose();
+            }
+
+            @Override
+            public void completeFail(String message) {
+                Log.v(Config.LOG_TAG, "FALLO SINCRONIZACION >>> " + message);
+                // CIERRO EL CARGANDO
+                progressDialogClose();
+                // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+                Helpers.customDialogMessage(message).show();
+            }
+        });
+
+    }
+
+    private void syncItems(boolean mIsAppOnline) {
+        // MUESTRO UN CARGANDO
+        progressDialogLoadingShow();
+
+        mItemModel.getItemsAssets(mContext, new ItemModelInterface<ItemEntityResponse>() {
+            @Override
+            public void completeSuccess(ItemEntityResponse entity) {
+                Log.v(Config.LOG_TAG, "EXITO SINCRONIZACION >>> " + entity);
+                if(!entity.getKind().equals("")){
+                    mTextviewTitleRoot.setText(entity.getKind().trim());
+                }else{
+                    mTextviewTitleRoot.setText(getResources().getString(R.string.title));
+                }
+
+                if(entity.getData() != null){
+                    mResponseData = entity.getData();
+                    responseDataItemsView();
+                }
+
+                // CIERRO EL CARGANDO
+                progressDialogClose();
+            }
+
+            @Override
+            public void completeFail(String message) {
+                Log.v(Config.LOG_TAG, "FALLO SINCRONIZACION >>> " + message);
+                // CIERRO EL CARGANDO
+                progressDialogClose();
+                // ABRIMOS UN DIALOG CON EL MENSAJE QUE VIENE DEL SERVICIO
+                Helpers.customDialogMessage(message).show();
+            }
+        });
+    }
+
     private void responseDataItemsView() {
         if(mResponseData != null){
             mModHash = mResponseData.getModhash();
             if(!mModHash.equals("")){
-                mTextviewTitleRoot.setText(mModHash.trim());
+                mTextviewModhash.setText(mModHash.trim());
             }else{
-                mTextviewTitleRoot.setText(getResources().getString(R.string.modhash));
+                mTextviewModhash.setText(getResources().getString(R.string.modhash));
             }
             mChildrens = mResponseData.getChildren();
             if(mChildrens.size() > 0){
@@ -422,6 +516,10 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
         mProgressDialog = null;
     }
 
+    //endregion
+
+    //region VIEW.ONCLICKLISTENER METHODS
+
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -434,4 +532,19 @@ public class MainActivity extends AppCompatActivity implements DelegateItemAdapt
                 break;
         }
     }
+
+    //endregion
+
+    //region DELEGATEITEMADAPTER METHODS
+
+    @Override
+    public void onItemClicked(Children entity) {
+        Log.v(Config.LOG_TAG, "HICE CLICK EN --> " + entity);
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra("children", (Serializable) entity);
+        startActivity(intent);
+    }
+
+    //endregion
+
 }
